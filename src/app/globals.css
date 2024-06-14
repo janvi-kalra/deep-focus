@@ -43,3 +43,7 @@ body {
 input[type="text"] {
   @apply border-none border-b border-gray-300 outline-none focus:border-blue-500;
 }
+
+.group:hover .hidden {
+  display: inline;
+}

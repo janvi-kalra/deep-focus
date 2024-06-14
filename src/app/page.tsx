@@ -1,5 +1,4 @@
 "use client"
-"use client"
 import React, { useState, useEffect } from 'react';
 import Timer from './components/Timer';
 import DeepWorkForm from './components/DeepWorkForm';
@@ -44,6 +43,10 @@ const Home: React.FC = () => {
   const handleFormSubmit = async (session: any) => {
     setSessions([session, ...sessions]);
     setCurrentSession(session);
+  };
+
+  const handleDelete = (id: number) => {
+    setSessions(sessions.filter(session => session.id !== id));
   };
 
   const calculateTotalTime = (start: string, end: string) => {
@@ -111,7 +114,7 @@ const Home: React.FC = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         <Timer onExpire={handleExpire} initialDuration={initialDuration} />
         <DeepWorkForm onSessionStart={handleFormSubmit} />
-        <SessionTable sessions={sessions} />
+        <SessionTable sessions={sessions} onDelete={handleDelete} />
         <WeeklyChart data={calculateWeeklyData()} />
       </div>
     </div>

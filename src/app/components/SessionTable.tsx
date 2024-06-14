@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface Session {
   id: number;
@@ -11,6 +13,7 @@ interface Session {
 
 interface SessionTableProps {
   sessions: Session[];
+  onDelete: (id: number) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -30,7 +33,7 @@ const calculateTotalTime = (start: string, end: string) => {
   return `${diffHrs}h ${diffMins}min`;
 };
 
-const SessionTable: React.FC<SessionTableProps> = ({ sessions }) => {
+const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete }) => {
   const [filter, setFilter] = useState('today');
 
   const filteredSessions = sessions.filter(session => {
@@ -46,6 +49,36 @@ const SessionTable: React.FC<SessionTableProps> = ({ sessions }) => {
       return true;
     }
   });
+
+  const handleDelete = async (id: number) => {
+    const response = await fetch(`/api/sessions/${id}`, {
+      method: 'DELETE',
+    });
+  
+    if (response.ok) {
+      onDelete(id);
+    } else {
+      console.error('Failed to delete session');
+    }
+  };
+
+  const renderInProgress = (session: Session) => {
+    return (
+      <div className='flex'>
+        <div>In progress</div>
+        <button
+          onClick={() => handleDelete(session.id)}
+          className="text-gray-400 relative"
+        >
+          <FontAwesomeIcon
+            icon={faTrashAlt}
+            className="inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 mx-2"
+          />
+        </button>
+      </div>
+    );
+  };
+  
 
   return (
     <div>
@@ -67,10 +100,11 @@ const SessionTable: React.FC<SessionTableProps> = ({ sessions }) => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredSessions.map((session) => (
-              <tr key={session.id}>
+              <tr key={session.id} className="group">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(session.start)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.end ? formatDate(session.end) : 'In progress'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.end ? calculateTotalTime(session.start, session.end) : 'In progress'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.end ? calculateTotalTime(session.start, session.end) : renderInProgress(session)
+                }</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.tag}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.description}</td>
               </tr>

@@ -45,7 +45,7 @@ const DeepWorkForm: React.FC<DeepWorkFormProps> = ({ onSessionStart }) => {
           value={tag}
           onChange={(e) => setTag(e.target.value)}
           placeholder="Tag"
-          className="w-1/3 p-2 border-b border-gray-300 outline-none"
+          className="w-1/5 p-2 border-b border-gray-300 outline-none font-mono"
         />
         <input
           type="text"
@@ -55,7 +55,6 @@ const DeepWorkForm: React.FC<DeepWorkFormProps> = ({ onSessionStart }) => {
           className="w-2/3 p-2 border-b border-gray-300 outline-none font-mono"
         />
       </div>
-      <button type="submit" className="btn">Start Session</button>
       {error && <p className="text-red-500">{error}</p>}
     </form>
   );
