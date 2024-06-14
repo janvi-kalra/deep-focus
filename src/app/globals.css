@@ -39,3 +39,7 @@ body {
 .font-mono {
   font-family: 'Courier New', Courier, monospace;
 }
+
+input[type="text"] {
+  @apply border-none border-b border-gray-300 outline-none focus:border-blue-500;
+}
