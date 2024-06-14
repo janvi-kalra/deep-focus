@@ -3,12 +3,21 @@ import React, { useState, useEffect } from 'react';
 import Timer from './components/Timer';
 import DeepWorkForm from './components/DeepWorkForm';
 import SessionTable from './components/SessionTable';
-import WeeklyChart from './components/WeeklyChart';
+import GitHubCalendar, { Activity } from 'react-github-calendar';
+
+export interface Session {
+  id: number;
+  start: string;
+  end?: string;
+  totalTime?: string;
+  tag: string;
+  description: string;
+}
 
 const Home: React.FC = () => {
-  const initialDuration = 30; // Test with 30 seconds
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [currentSession, setCurrentSession] = useState<any | null>(null);
+  const initialDuration = 90 * 60; // Test with 30 seconds
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -40,7 +49,7 @@ const Home: React.FC = () => {
     setCurrentSession(null);
   };
 
-  const handleFormSubmit = async (session: any) => {
+  const handleFormSubmit = async (session: Session) => {
     setSessions([session, ...sessions]);
     setCurrentSession(session);
   };
@@ -61,52 +70,28 @@ const Home: React.FC = () => {
     return `${diffHrs}h ${diffMins}min`;
   };
 
-  const calculateWeeklyData = () => {
-    const weeklyData = [
-      { date: 'Mon', hours: 0 },
-      { date: 'Tue', hours: 0 },
-      { date: 'Wed', hours: 0 },
-      { date: 'Thu', hours: 0 },
-      { date: 'Fri', hours: 0 },
-      { date: 'Sat', hours: 0 },
-      { date: 'Sun', hours: 0 },
-    ];
+  const calculateDailyData = (): Activity[] => {
+    const startDate = new Date(new Date().getFullYear(), 0, 1);
+    const endDate = new Date();
+    const daysInYear = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const data: Record<string, Activity> = {};
+
+    for (let i = 0; i <= daysInYear; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      const dateString = date.toISOString().split('T')[0];
+      data[dateString] = { date: dateString, count: 0, level: 0 };
+    }
 
     sessions.forEach(session => {
-      if (session.end) {
-        const day = new Date(session.start).getDay();
-        const totalTime = calculateTotalTime(session.start, session.end);
-        const hours = parseFloat(totalTime.split('h')[0]) || 0;
-        const mins = parseFloat(totalTime.split('h')[1]?.split('min')[0]) || 0;
-        const totalHours = hours + mins / 60;
-
-        switch (day) {
-          case 0:
-            weeklyData[6].hours += totalHours; // Sunday
-            break;
-          case 1:
-            weeklyData[0].hours += totalHours; // Monday
-            break;
-          case 2:
-            weeklyData[1].hours += totalHours; // Tuesday
-            break;
-          case 3:
-            weeklyData[2].hours += totalHours; // Wednesday
-            break;
-          case 4:
-            weeklyData[3].hours += totalHours; // Thursday
-            break;
-          case 5:
-            weeklyData[4].hours += totalHours; // Friday
-            break;
-          case 6:
-            weeklyData[5].hours += totalHours; // Saturday
-            break;
-        }
+      const sessionDate = new Date(session.start).toISOString().split('T')[0];
+      if (data[sessionDate]) {
+        data[sessionDate].count += 1;
+        data[sessionDate].level = Math.min(data[sessionDate].count, 4);
       }
     });
 
-    return weeklyData;
+    return Object.values(data);
   };
 
   return (
@@ -115,7 +100,12 @@ const Home: React.FC = () => {
         <Timer onExpire={handleExpire} initialDuration={initialDuration} />
         <DeepWorkForm onSessionStart={handleFormSubmit} />
         <SessionTable sessions={sessions} onDelete={handleDelete} />
-        <WeeklyChart data={calculateWeeklyData()} />
+        <div className="p-4 bg-white shadow-sm rounded-lg border border-gray-200">
+          <GitHubCalendar 
+            username={'janvi'} 
+            transformData={() => calculateDailyData()}
+          />
+        </div>
       </div>
     </div>
   );

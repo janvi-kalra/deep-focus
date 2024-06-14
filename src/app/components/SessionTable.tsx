@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { Session } from '../page';
 
-interface Session {
-  id: number;
-  start: string;
-  end?: string;
-  totalTime?: string;
-  tag: string;
-  description: string;
-}
 
 interface SessionTableProps {
   sessions: Session[];
