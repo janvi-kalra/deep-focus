@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import Timer from "./components/Timer";
-import AddSessionForm from "./components/AddSessionForm";
+import TimerAndForm from "./components/TimerAndForm";
 import SessionTable from "./components/SessionTable";
 
 export default function Home() {
@@ -16,8 +15,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-4xl mx-auto space-y-8">
-        <Timer />
-        <AddSessionForm onAddSession={handleAddSession} />
+        <TimerAndForm onAddSession={handleAddSession} />
         <SessionTable sessions={sessions} />
       </div>
     </div>
