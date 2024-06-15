@@ -57,3 +57,22 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return new NextResponse(JSON.stringify({ error: 'Internal Server Error', details: error.message }), { status: 500 });
   }
 }
+
+async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+  const { description } = await req.json();
+
+  try {
+    const { error } = await supabase
+      .from('deep_work_sessions')
+      .update({ description })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return new NextResponse(null, { status: 200 });
+  } catch (error: any) {
+    console.error('Error updating session description:', error);
+    return new NextResponse(JSON.stringify({ error: 'Internal Server Error', details: error.message }), { status: 500 });
+  }
+}

@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { Session } from '../page';
 
-
 interface SessionTableProps {
   sessions: Session[];
   onDelete: (id: number) => void;
+  onUpdateDescription: (id: number, description: string) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -26,8 +26,10 @@ const calculateTotalTime = (start: string, end: string) => {
   return `${diffHrs}h ${diffMins}min`;
 };
 
-const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete }) => {
+const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete, onUpdateDescription }) => {
   const [filter, setFilter] = useState('today');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDescription, setEditDescription] = useState(sessions[0]?.description || '');
 
   const filteredSessions = sessions.filter(session => {
     const sessionDate = new Date(session.start).toLocaleDateString();
@@ -55,6 +57,29 @@ const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete }) => {
     }
   };
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditDescription(e.target.value);
+  };
+
+  const handleDescriptionBlur = async (session: Session) => {
+    setIsEditing(false);
+    if (session.description !== editDescription) {
+      const response = await fetch(`/api/sessions/${session.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description: editDescription }),
+      });
+  
+      if (response.ok) {
+        onUpdateDescription(session.id, editDescription);
+      } else {
+        console.error('Failed to update session description', response.statusText);
+      }
+    }
+  };
+
   const renderInProgress = (session: Session) => {
     return (
       <div className='flex'>
@@ -71,7 +96,6 @@ const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete }) => {
       </div>
     );
   };
-  
 
   return (
     <div>
@@ -92,14 +116,31 @@ const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredSessions.map((session) => (
+            {filteredSessions.map((session, index) => (
               <tr key={session.id} className="group">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(session.start)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.end ? formatDate(session.end) : 'In progress'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.end ? calculateTotalTime(session.start, session.end) : renderInProgress(session)
-                }</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.end ? calculateTotalTime(session.start, session.end) : renderInProgress(session)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.tag}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{session.description}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {index === 0 && isEditing ? (
+                    <input
+                      type="text"
+                      value={editDescription}
+                      onChange={handleDescriptionChange}
+                      onBlur={() => handleDescriptionBlur(session)}
+                      className="w-full border border-gray-300 p-2"
+                      autoFocus
+                    />
+                  ) : (
+                    <span
+                      onClick={() => index === 0 && setIsEditing(true)}
+                      className="cursor-pointer"
+                    >
+                      {session.description}
+                    </span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

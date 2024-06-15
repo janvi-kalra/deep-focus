@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
 import Timer from './components/Timer';
 import DeepWorkForm from './components/DeepWorkForm';
@@ -41,7 +41,7 @@ const Home: React.FC = () => {
     });
 
     if (response.ok) {
-      setSessions(sessions.map(session => 
+      setSessions(sessions.map(session =>
         session.id === currentSession.id ? { ...session, end, totalTime } : session
       ));
     }
@@ -56,6 +56,27 @@ const Home: React.FC = () => {
 
   const handleDelete = (id: number) => {
     setSessions(sessions.filter(session => session.id !== id));
+  };
+
+  const handleUpdateDescription = async (updatedSession: Session) => {
+    try {
+      const response = await fetch(`/api/sessions`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSession),
+      });
+
+      if (response.ok) {
+        const newSession = await response.json();
+        setSessions((prevSessions) =>
+          prevSessions.map((session) =>
+            session.id === newSession.id ? newSession : session
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error updating session:', error);
+    }
   };
 
   const calculateTotalTime = (start: string, end: string) => {
@@ -99,7 +120,7 @@ const Home: React.FC = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         <Timer onExpire={handleExpire} initialDuration={initialDuration} />
         <DeepWorkForm onSessionStart={handleFormSubmit} />
-        <SessionTable sessions={sessions} onDelete={handleDelete} />
+        <SessionTable sessions={sessions} onDelete={handleDelete} onUpdateDescription={handleUpdateDescription} />
         <div className="p-4 bg-white shadow-sm rounded-lg border border-gray-200">
           <GitHubCalendar 
             username={'janvi'} 
