@@ -58,12 +58,12 @@ const Home: React.FC = () => {
     setSessions(sessions.filter(session => session.id !== id));
   };
 
-  const handleUpdateDescription = async (updatedSession: Session) => {
+  const handleUpdateDescription = async (id: number, description: string) => {
     try {
       const response = await fetch(`/api/sessions`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedSession),
+        body: JSON.stringify({id, description}),
       });
 
       if (response.ok) {
@@ -108,7 +108,7 @@ const Home: React.FC = () => {
       const sessionDate = new Date(session.start).toISOString().split('T')[0];
       if (data[sessionDate]) {
         data[sessionDate].count += 1;
-        data[sessionDate].level = Math.min(data[sessionDate].count, 4);
+        data[sessionDate].level = Math.min(data[sessionDate].count, 4) as 0 | 2 | 1 | 3 | 4;
       }
     });
 
