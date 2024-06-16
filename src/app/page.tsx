@@ -16,7 +16,7 @@ export interface Session {
 }
 
 const Home: React.FC = () => {
-  const initialDuration = 0.05 * 60; // 90 minutes
+  const initialDuration = 90 * 60; // 90 minutes
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
 
