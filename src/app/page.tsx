@@ -16,7 +16,7 @@ export interface Session {
 }
 
 const Home: React.FC = () => {
-  const initialDuration = 90 * 60; // 90 minutes
+  const initialDuration = 0.05 * 60; // 90 minutes
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
 
@@ -46,6 +46,9 @@ const Home: React.FC = () => {
         session.id === currentSession.id ? { ...session, end, focused } : session
       ));
     }
+
+    const audio = new Audio('/alert-sound.wav');
+    audio.play();  
 
     setCurrentSession(null);
   };
@@ -88,7 +91,7 @@ const Home: React.FC = () => {
     const finalValue = Math.min(Math.floor(count / 1.5), 4) as 0 | 2 | 1 | 3 | 4
     return finalValue
   }
-  
+
   const calculateDailyData = (): Activity[] => {
     const startDate = new Date(new Date().getFullYear(), 0, 1);
     const endDate = new Date();
@@ -121,8 +124,11 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-4xl mx-auto space-y-8">
-        <Timer onExpire={handleExpire} initialDuration={initialDuration} initIsRunning={!!currentSession} />
-        <DeepWorkForm onSessionStart={handleFormSubmit} />
+        
+        {currentSession 
+          ? <Timer onExpire={handleExpire} initialDuration={initialDuration} /> 
+          : <DeepWorkForm onSessionStart={handleFormSubmit} />
+        }
         <SessionTable sessions={sessions} onDelete={handleDelete} onUpdateDescription={handleUpdateDescription} />
         <div className="p-4 bg-white shadow-sm rounded-lg border border-gray-200">
           <GitHubCalendar 

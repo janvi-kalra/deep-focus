@@ -36,6 +36,10 @@ body {
   @apply bg-gray-100 text-gray-700 py-2 px-4 rounded-md border border-gray-300 transition duration-300 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400;
 }
 
+.light-btn {
+  @apply bg-gray-100 text-gray-700 text-xs py-2 px-2 rounded-md border border-gray-300 transition duration-300 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-400;
+}
+
 .font-mono {
   font-family: 'Courier New', Courier, monospace;
 }

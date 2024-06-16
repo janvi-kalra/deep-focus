@@ -111,9 +111,9 @@ const SessionTable: React.FC<SessionTableProps> = ({ sessions, onDelete, onUpdat
   return (
     <div>
       <div className="flex space-x-4 mb-4">
-        <button className="btn" onClick={() => setFilter('today')}>Today</button>
-        <button className="btn" onClick={() => setFilter('yesterday')}>Yesterday</button>
-        <button className="btn" onClick={() => setFilter('all')}>All</button>
+        <button className="light-btn" onClick={() => setFilter('today')}>Today</button>
+        <button className="light-btn" onClick={() => setFilter('yesterday')}>Yesterday</button>
+        <button className="light-btn" onClick={() => setFilter('all')}>All</button>
       </div>
       <div className="overflow-x-auto bg-white shadow-sm rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
