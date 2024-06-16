@@ -51,7 +51,7 @@ const Timer: React.FC<TimerProps> = ({ onExpire, initialDuration, initIsRunning 
 
   const formatTime = (time: number) => String(time).padStart(2, '0');
 
-  if (!isRunning && !remainingTime) {
+  if (!isRunning && !initIsRunning) {
     return <div> </div>
   }
 

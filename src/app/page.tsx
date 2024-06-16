@@ -80,6 +80,15 @@ const Home: React.FC = () => {
     }
   };
 
+  const calculateLevel = (count: number) => {
+    if (count == 0 || count == 1) {
+      return count
+    }
+
+    const finalValue = Math.min(Math.floor(count / 1.5), 4) as 0 | 2 | 1 | 3 | 4
+    return finalValue
+  }
+
   const calculateDailyData = (): Activity[] => {
     const startDate = new Date(new Date().getFullYear(), 0, 1);
     const endDate = new Date();
@@ -97,7 +106,7 @@ const Home: React.FC = () => {
       const sessionDate = new Date(session.start).toISOString().split('T')[0];
       if (data[sessionDate]) {
         data[sessionDate].count += 1;
-        data[sessionDate].level = Math.min(data[sessionDate].count, 4) as 0 | 2 | 1 | 3 | 4;
+        data[sessionDate].level = calculateLevel(data[sessionDate].count + 1)
       }
     });
 
