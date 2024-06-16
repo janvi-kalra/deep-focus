@@ -10,12 +10,13 @@ export interface Session {
   start: string;
   end?: string;
   totalTime?: string;
+  focused?: number;
   tag: string;
   description: string;
 }
 
 const Home: React.FC = () => {
-  const initialDuration = 90 * 60; // Test with 30 seconds
+  const initialDuration = 90 * 60; // 90 minutes
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
 
@@ -28,21 +29,21 @@ const Home: React.FC = () => {
     fetchSessions();
   }, []);
 
-  const handleExpire = async () => {
+  const handleExpire = async (timeElapsed: number) => {
     if (!currentSession) return;
 
     const end = new Date().toISOString();
-    const totalTime = calculateTotalTime(currentSession.start, end);
+    const focused = timeElapsed;
 
     const response = await fetch(`/api/sessions/${currentSession.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ end, totalTime }),
+      body: JSON.stringify({ end, focused }),
     });
 
     if (response.ok) {
       setSessions(sessions.map(session =>
-        session.id === currentSession.id ? { ...session, end, totalTime } : session
+        session.id === currentSession.id ? { ...session, end, focused } : session
       ));
     }
 
@@ -79,18 +80,6 @@ const Home: React.FC = () => {
     }
   };
 
-  const calculateTotalTime = (start: string, end: string) => {
-    const startTime = new Date(start);
-    const endTime = new Date(end);
-    const diffMs = endTime.getTime() - startTime.getTime();
-    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMins = Math.round((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    if (diffHrs === 0) {
-      return `${diffMins}min`;
-    }
-    return `${diffHrs}h ${diffMins}min`;
-  };
-
   const calculateDailyData = (): Activity[] => {
     const startDate = new Date(new Date().getFullYear(), 0, 1);
     const endDate = new Date();
@@ -118,7 +107,7 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-4xl mx-auto space-y-8">
-        <Timer onExpire={handleExpire} initialDuration={initialDuration} />
+        <Timer onExpire={handleExpire} initialDuration={initialDuration} initIsRunning={!!currentSession} />
         <DeepWorkForm onSessionStart={handleFormSubmit} />
         <SessionTable sessions={sessions} onDelete={handleDelete} onUpdateDescription={handleUpdateDescription} />
         <div className="p-4 bg-white shadow-sm rounded-lg border border-gray-200">

@@ -54,7 +54,7 @@ const DeepWorkForm: React.FC<DeepWorkFormProps> = ({ onSessionStart }) => {
           placeholder="Description"
           className="w-2/3 p-2 border-b border-gray-300 outline-none font-mono"
         />
-        <button name='submit'> </button> 
+        <button type="submit"></button>
       </div>
       {error && <p className="text-red-500">{error}</p>}
     </form>

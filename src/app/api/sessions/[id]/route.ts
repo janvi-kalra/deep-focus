@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { start, end, total_time, tag, description } = await req.json();
+    const { start, end, focused, tag, description } = await req.json();
 
     if (!start || !tag || !description) {
       throw new Error('Missing required fields');
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('deep_work_sessions')
-      .insert([{ start, end, total_time, tag, description }])
+      .insert([{ start, end, focused, tag, description }])
       .select()
       .single();
 
@@ -57,15 +57,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return new NextResponse(JSON.stringify({ error: 'Internal Server Error', details: error.message }), { status: 500 });
   }
 }
-// PUT request handler
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
-  const { description } = await req.json();
+  const { description, end, focused } = await req.json();
 
   try {
     const { error } = await supabase
       .from('deep_work_sessions')
-      .update({ description })
+      .update({ description, end, focused })
       .eq('id', id);
 
     if (error) throw error;

@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { start, end, total_time, tag, description } = await req.json();
+    const { start, end, focused, tag, description } = await req.json();
 
     if (!start || !tag || !description) {
       throw new Error('Missing required fields');
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('deep_work_sessions')
-      .insert([{ start, end, total_time, tag, description }])
+      .insert([{ start, end, focused, tag, description }])
       .select()
       .single();
 
@@ -58,21 +58,38 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 }
 
-async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
-  const { description } = await req.json();
+  const { description, end, focused } = await req.json();
 
   try {
+    // Fetch existing session to merge with new data
+    const { data: existingSession, error: fetchError } = await supabase
+      .from('deep_work_sessions')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Update fields and merge with existing data
+    const updatedSession = {
+      ...existingSession,
+      description,
+      end: end || existingSession.end,
+      focused: focused || existingSession.focused,
+    };
+
     const { error } = await supabase
       .from('deep_work_sessions')
-      .update({ description })
+      .update(updatedSession)
       .eq('id', id);
 
     if (error) throw error;
 
-    return new NextResponse(null, { status: 200 });
+    return new NextResponse(JSON.stringify(updatedSession), { status: 200 });
   } catch (error: any) {
-    console.error('Error updating session description:', error);
+    console.error('Error updating session:', error);
     return new NextResponse(JSON.stringify({ error: 'Internal Server Error', details: error.message }), { status: 500 });
   }
 }
